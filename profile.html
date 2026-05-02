@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>開発者情報 | OITA Transit Dashboard</title>
+
+    <link rel="icon" href="image/rogo.png" type="image/png">
+    <link rel="apple-touch-icon" href="image/rogo.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ========================================================
+           ベース設定・ヘッダー完全統一
+           ======================================================== */
+        :root { --text-main: #222222; --text-light: #555555; --bg-color: #fcfcfc; --brand-blue: #004488; --surface: #ffffff; --border-color: #cccccc; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Noto Sans JP', "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; color: var(--text-main); background-color: var(--bg-color); line-height: 1.8; letter-spacing: 0.03em;}
+
+        header { background-color: #ffffff; height: 70px; padding: 0 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--brand-blue); position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
+        .logo { text-decoration: none; color: var(--brand-blue); font-size: 20px; font-weight: 700; line-height: 1.2; }
+        .logo span { display: block; font-size: 11px; color: var(--text-light); margin-top: 2px; font-weight: 500;}
+        .header-links { display: flex; gap: 30px; align-items: center; }
+        .header-links a { text-decoration: none; color: var(--text-main); font-size: 14px; font-weight: 700; transition: 0.3s; padding-bottom: 5px; border-bottom: 2px solid transparent;}
+        .header-links a:hover, .header-links a.active { color: var(--brand-blue); border-color: var(--brand-blue); }
+        .btn-outline { padding: 8px 20px; border: 2px solid var(--text-main); color: var(--text-main); font-size: 13px; font-weight: 700; text-decoration: none; background: #fff; transition: 0.3s; border-radius: 4px; line-height: 1;}
+        .btn-outline:hover { background-color: var(--text-main); color: #fff; border-color: var(--text-main);}
+
+        /* ========================================================
+           ページ固有コンテンツ（開発者情報）
+           ======================================================== */
+        .container { max-width: 900px; width: 95%; margin: 120px auto 100px; background: #fff; padding: 60px; border: 1px solid var(--border-color); box-shadow: 0 5px 15px rgba(0,0,0,0.02);}
+        
+        .profile-header { text-align: left; margin-bottom: 50px; border-bottom: 2px solid var(--border-color); padding-bottom: 30px; }
+        .profile-name { font-size: 32px; font-weight: 700; margin-bottom: 10px; color: var(--text-main);}
+        .profile-title { font-size: 15px; color: var(--text-light); font-weight: 700; }
+
+        .profile-section { margin-bottom: 60px; }
+        .section-title { font-size: 20px; font-weight: 700; padding-left: 10px; margin-bottom: 25px; border-left: 5px solid var(--brand-blue); color: var(--brand-blue); }
+        .content-text { font-size: 15px; color: var(--text-main); margin-bottom: 20px; line-height: 1.8; font-weight: 500;}
+
+        .history-list { list-style: none; margin-left: 10px; }
+        .history-list li { position: relative; padding-left: 20px; margin-bottom: 15px; font-size: 14px; font-weight: 500;}
+        .history-list li::before { content: '■'; position: absolute; left: 0; color: var(--brand-blue); font-size: 10px; top: 4px; }
+        .year { font-weight: 700; color: var(--text-main); margin-right: 15px; border-bottom: 1px dotted var(--text-main); }
+
+        .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        
+        /* ポートフォリオカード（RESAS風ホバー反転） */
+        .portfolio-card { background: var(--bg-color); border: 2px solid var(--border-color); overflow: hidden; text-decoration: none; color: var(--text-main); display: block; transition: all 0.3s ease; border-radius: 8px;}
+        .portfolio-card:hover { border-color: var(--brand-blue); background-color: var(--brand-blue); transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,68,136,0.2); }
+        .portfolio-card:hover h3 { color: #ffffff; }
+        .portfolio-card:hover p { color: #eeeeee; }
+        .portfolio-card:hover .portfolio-img { filter: brightness(0.9); }
+        
+        .portfolio-img { width: 100%; aspect-ratio: 16/9; background-color: #eeeeee; background-size: cover; background-position: center; border-bottom: 1px solid var(--border-color); transition: 0.3s ease;}
+        .portfolio-content { padding: 20px; }
+        .portfolio-tag { display: inline-block; font-size: 11px; font-weight: 700; background: var(--text-main); color: #fff; padding: 2px 8px; margin-bottom: 10px; border-radius: 4px;}
+        .portfolio-card:hover .portfolio-tag { background: #fff; color: var(--brand-blue); }
+        .portfolio-content h3 { font-size: 16px; font-weight: 700; margin-bottom: 10px; color: var(--brand-blue); transition: 0.3s ease;}
+        .portfolio-content p { font-size: 13px; color: var(--text-main); line-height: 1.6; font-weight: 500; transition: 0.3s ease;}
+
+        .contact-box { background-color: var(--bg-color); padding: 30px; border: 1px solid var(--border-color); text-align: center; border-radius: 8px;}
+        .contact-box a { color: var(--brand-blue); text-decoration: none; font-weight: 700; font-size: 18px; display: inline-block; margin-top: 15px; }
+        .contact-box a:hover { text-decoration: underline; }
+
+        /* ========================================================
+           フッター完全統一
+           ======================================================== */
+        .site-footer { background-color: #eeeeee; color: var(--text-main); padding: 60px 5% 20px; border-top: 1px solid var(--border-color); margin-top: 80px; }
+        .footer-container { max-width: 1200px; margin: 0 auto; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px; }
+        .footer-col h4 { font-size: 16px; font-weight: 700; margin-bottom: 20px; border-bottom: 2px solid var(--brand-blue); padding-bottom: 10px; color: var(--brand-blue); display: inline-block;}
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 10px; }
+        .footer-col ul li a { color: var(--text-main); text-decoration: none; font-size: 14px; font-weight: 500; transition: 0.2s;}
+        .footer-col ul li a:hover { color: var(--brand-blue); padding-left: 5px; } 
+        .footer-bottom { text-align: center; border-top: 1px solid var(--border-color); padding-top: 20px; font-size: 12px; color: var(--text-light); }
+        @media (max-width: 768px) { .header-links { display: none; } .container { padding: 30px 20px; } }
+    </style>
+
+    <meta name="description" content="大分県内の鉄道路線やバス路線の利用実態をデータで可視化する、日本文理大学 今西研究室のプロジェクトサイトです。">
+    <meta property="og:title" content="OITA Transit Dashboard | おおいた地域交通見える化ボード">
+    <meta property="og:description" content="大分県内の地域交通の利用実態をデータで可視化。皆様の声で未来のダイヤを考えます。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="【ここに公開したサイトのURLを入れる】">
+    <meta property="og:image" content="【ここにSNSで表示させたい画像のURLを入れる】">
+    <meta name="twitter:card" content="summary_large_image">
+    
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">OITA Regional Transportation Dashboard<span>おおいた地域交通見える化ボード</span></a>
+        <div class="header-links">
+            <a href="index.html">ホーム</a>
+            <a href="map.html">路線マップ</a>
+            <a href="news.html">お知らせ</a>
+            <a href="survey.html">アンケート</a>
+            <a href="about.html">このサイトについて</a>
+            <a href="profile.html">開発者情報</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="profile-header">
+            <h1 class="profile-name">津田 櫂臣</h1>
+            <p class="profile-title">日本文理大学 経営経済学部 地域マネジメントコース / 今西研究室</p>
+        </div>
+
+    <div class="profile-section">
+    <h2 class="section-title">研究の目的と背景</h2>
+    <p class="content-text">
+        大分県内の公共交通を対象に、利用実態の調査や需要促進に関する研究を行っています。
+    </p>
+    <p class="content-text">
+        本サイトは、貴重な調査データをご提供いただいた地域の皆様や事業者の皆様へ、結果を分かりやすく共有（還元）することを目的として構築しました。
+    </p>
+    <p class="content-text">
+        BIツールを用いてデータを可視化することで、一学生の視点からではありますが、大分の公共交通の未来を皆様と共に考えていくための「小さな一助」となれば幸いです。
+    </p>
+</div>
+
+
+        <div class="profile-section">
+            <h2 class="section-title">主な活動歴</h2>
+            <ul class="history-list">
+                <li><span class="year">2026年</span>公益財団法人九州運輸振興センター主催 令和7年度懸賞論文 2年連続「優秀賞」受賞</li>
+                <li><span class="year">2026年</span>JR豊肥本線における利用実態調査およびBIツールを活用したダッシュボードの構築・一般公開</li>
+                <li><span class="year">2025年</span>公益財団法人九州運輸振興センター主催 令和6年度懸賞論文「優秀賞」受賞</li>
+            </ul>
+        </div>
+
+        <div class="profile-section">
+            <h2 class="section-title">その他の制作物・関連サイト</h2>
+            <p class="content-text" style="margin-bottom: 20px;">本サイトの他にも、地域交通に関連する情報サイトやツールの開発を行っています。</p>
+            
+            <div class="portfolio-grid">
+                <a href="https://sites.google.com/view/oita-hover-log" target="_blank" class="portfolio-card">
+                    <div class="portfolio-img" style="background-image: url('image/hoverTOP.png');"></div>
+                    <div class="portfolio-content">
+                        <span class="portfolio-tag">Webサイト</span>
+                        <h3>ホーバー運行記録帳</h3>
+                        <p>大分空港と大分市内を結ぶホーバークラフトの運航状況や関連する記録を独自にまとめたポータルサイトです。</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2 class="section-title">お問い合わせ</h2>
+            <div class="contact-box">
+                <p class="content-text" style="margin-bottom: 0;">本サイトや研究内容・データに関するお問い合わせ等は、<br>「このサイトについて」にあります問い合わせフォームからお願いいたします。</p>
+                
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>メニュー</h4>
+                    <ul>
+                        <li><a href="index.html">ホーム</a></li>
+                        <li><a href="map.html">路線マップ・公開データ</a></li>
+                        <li><a href="news.html">お知らせ一覧</a></li>
+                        <li><a href="survey.html">アンケート調査</a></li>
+                        <li><a href="about.html">このサイトについて</a></li>
+                        <li><a href="profile.html">開発者情報</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>関連リンク</h4>
+                    <ul>
+                        <li><a href="https://sites.google.com/nbu.ac.jp/imanishimm/" target="_blank">今西研究室 公式サイト</a></li>
+                        <li><a href="https://sites.google.com/view/oita-hover-log" target="_blank">ホーバー運行記録帳</a></li>
+                        <li><a href="https://www.jrkyushu.co.jp/" target="_blank">JR九州 公式サイト</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>規約・サポート</h4>
+                    <ul>
+                        <li><a href="terms.html">利用規約・免責事項</a></li>
+                        <li><a href="terms.html#privacy">プライバシーポリシー</a></li>
+                        <li><a href="terms.html#research">研究目的の利用について</a></li>
+                        <li><a href="faq.html">よくある質問（FAQ）</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 <a href="admin-login.html" style="color: inherit; text-decoration: none; cursor: default;">Tuda kaito. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

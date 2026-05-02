@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OITA Transit Dashboard | おおいた地域交通見える化ボード</title>
+    
+    <link rel="icon" href="image/rogo.png" type="image/png">
+    <link rel="apple-touch-icon" href="image/rogo.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
+    
+    <style>
+    /* ========================================= */
+        /* ★地図エリア（上下に余白を作り、スクロールできるように） */
+        /* ========================================= */
+        .map-wrapper { 
+            width: 100vw; 
+            height: 80vh; /* 100vhから80vhに変更して高さを抑える */
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
+            margin-top: 5vh;    /* 上に少し余白 */
+            margin-bottom: 10vh; /* 下にもスクロール用の余白 */
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+
+        #map { width: 100%; height: 100%; }
+    </style>
+    <style>
+        /* ========================================================
+           ベース設定・ヘッダー完全統一
+           ======================================================== */
+        :root { --text-main: #222222; --text-light: #555555; --bg-color: #fcfcfc; --brand-blue: #004488; --surface: #ffffff; --border-color: #cccccc; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Noto Sans JP', "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; color: var(--text-main); background-color: var(--bg-color); line-height: 1.8; letter-spacing: 0.05em; overflow-x: hidden; }
+
+        header { background-color: #ffffff; height: 70px; padding: 0 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--brand-blue); position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
+        .logo { text-decoration: none; color: var(--brand-blue); font-size: 20px; font-weight: 700; line-height: 1.2; }
+        .logo span { display: block; font-size: 11px; color: var(--text-light); margin-top: 2px; font-weight: 500;}
+        .header-links { display: flex; gap: 30px; align-items: center; }
+        .header-links a { text-decoration: none; color: var(--text-main); font-size: 14px; font-weight: 700; transition: 0.3s; padding-bottom: 5px; border-bottom: 2px solid transparent;}
+        .header-links a:hover, .header-links a.active { color: var(--brand-blue); border-color: var(--brand-blue); }
+
+        /* ========================================================
+           オープニングアニメーション
+           ======================================================== */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background-color: var(--brand-blue); 
+            z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            transition: transform 0.8s cubic-bezier(0.86, 0, 0.07, 1); 
+        }
+        
+        #splash-screen.slide-up {
+            transform: translateY(-100%);
+        }
+
+        .splash-content {
+            text-align: center; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%; 
+        }
+
+        .splash-text-box-ja {
+            overflow: hidden; 
+            padding: 5px 0; 
+            margin-bottom: 25px; 
+        }
+        .splash-main-ja {
+            color: #ffffff; font-size: clamp(24px, 4vw, 42px); font-weight: 700; letter-spacing: 0.1em;
+            transform: translateY(120%); 
+            animation: revealText 0.8s 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        @keyframes revealText {
+            to { transform: translateY(0); }
+        }
+
+        .splash-route-line {
+            height: 1px; 
+            width: 0; 
+            background-color: #ffffff; 
+            opacity: 0.5;
+            animation: extendLine 1.0s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        @keyframes extendLine {
+            0% { width: 0; }
+            100% { width: 100%; } 
+        }
+
+        .splash-sub-en {
+            color: #aaddff; font-size: clamp(11px, 1.5vw, 14px); letter-spacing: 0.15em; font-weight: 500;
+            opacity: 0; 
+            margin-top: 25px; 
+            animation: fadeInText 0.8s 1.0s ease forwards; 
+        }
+        @keyframes fadeInText {
+            to { opacity: 1; }
+        }
+
+        /* ========================================================
+           アニメーション設定（通常コンテンツ用）
+           ======================================================== */
+        .fade-in-up { opacity: 0; transform: translateY(40px); transition: opacity 1s cubic-bezier(0.25, 1, 0.5, 1), transform 1s cubic-bezier(0.25, 1, 0.5, 1); }
+        .fade-in-up.is-visible { opacity: 1; transform: translateY(0); }
+
+        /* ========================================================
+           スライダー
+           ======================================================== */
+        .slider-wrap { position: relative; height: calc(100vh - 70px); margin-top: 70px; overflow: hidden; background-color: #000; }
+        .slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 2.0s ease-in-out; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; padding: 0 5%; overflow: hidden;}
+        .bg-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; }
+        .slide.active { opacity: 1; z-index: 2; }
+        .slide-content { position: relative; z-index: 3; max-width: 900px; text-shadow: 0 2px 15px rgba(0,0,0,0.6);}
+        .slide h2 { font-size: clamp(32px, 4.5vw, 54px); margin-bottom: 25px; font-weight: 700; letter-spacing: 0.1em;}
+        .slide p { font-size: clamp(15px, 2.5vw, 18px); font-weight: 500;}
+
+        /* ========================================================
+           コンテンツエリア共通
+           ======================================================== */
+        .container { max-width: 1100px; width: 95%; margin: 0 auto; padding: 140px 0; }
+        .section { margin-bottom: 160px; }
+        .section-title { font-size: 28px; font-weight: 700; margin-bottom: 60px; text-align: center; color: var(--brand-blue); display: flex; align-items: center; justify-content: center; gap: 20px; letter-spacing: 0.1em;}
+        .section-title::before, .section-title::after { content: ''; display: block; width: 50px; height: 1px; background: var(--brand-blue); }
+
+        /* お知らせ */
+        .news-wrapper { background: #fff; padding: 40px; border: 1px solid var(--border-color); box-shadow: 0 15px 40px rgba(0,0,0,0.03); border-radius: 8px;}
+        .news-row { display: flex; gap: 25px; padding: 25px 15px; border-bottom: 1px solid #eeeeee; text-decoration: none; color: inherit; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); border-left: 4px solid transparent;}
+        .news-row:last-child { border-bottom: none; }
+        .news-row:hover { background-color: #f8fbff; border-left-color: var(--brand-blue); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,68,136,0.05);}
+        .news-date { font-weight: 700; color: var(--text-light); width: 110px; flex-shrink: 0; font-family: sans-serif; letter-spacing: 0;}
+        .news-label { font-size: 12px; background: var(--text-main); color: #fff; padding: 3px 12px; text-align: center; width: 100px; font-weight: 500; border-radius: 2px;}
+        .news-title { font-weight: 500; flex-grow: 1; line-height: 1.6; display: flex; align-items: center; gap: 8px;}
+        .pdf-icon-small { background: #cc0000; color: #fff; font-size: 10px; padding: 2px 5px; border-radius: 3px; display: inline-block; flex-shrink: 0; line-height: 1;}
+
+        /* アンケート */
+        .survey-box { background: var(--surface); padding: 70px 5%; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 15px 40px rgba(0,0,0,0.03); border-radius: 8px; position: relative; overflow: hidden;}
+        .survey-box::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: var(--brand-blue); }
+        .survey-box h2 { font-size: 28px; margin-bottom: 20px; color: var(--brand-blue); letter-spacing: 0.05em;}
+        .btn-primary { display: inline-block; padding: 18px 50px; background-color: var(--brand-blue); color: #fff; text-decoration: none; font-weight: 700; font-size: 16px; border: 1px solid var(--brand-blue); transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); border-radius: 4px; letter-spacing: 0.1em;}
+        .btn-primary:hover { background-color: #fff; color: var(--brand-blue); box-shadow: 0 10px 25px rgba(0,68,136,0.15); transform: translateY(-4px);}
+
+        /* ========================================================
+           交通ネットワーク（インタラクティブ・マップ）関連
+           ======================================================== */
+        .map-interactive-area { width: 100%; max-width: 700px; margin: 0 auto 20px; background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
+        
+        .municipality { fill: #f9f9f9; stroke: #cccccc; stroke-width: 1.5; cursor: pointer; transition: all 0.3s ease; transform-origin: center; }
+        .municipality:hover { fill: #f0f7ff; }
+        .municipality.active { fill: #e0f2fe; stroke: var(--brand-blue); transform: scale(1.05); z-index: 5; }
+        
+        .rail-line { fill: none; stroke: var(--brand-blue); stroke-width: 5; stroke-linecap: round; cursor: pointer; transition: all 0.3s ease; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1)); }
+        .rail-line:hover { stroke: #ff3300; stroke-width: 8; }
+        .rail-label { font-size: 14px; fill: #555; pointer-events: none; font-weight: bold; }
+
+        .ill-title { margin-top: 20px; font-weight: 700; font-size: 22px; color: var(--brand-blue); letter-spacing: 0.05em;}
+        .ill-desc { font-size: 15px; color: var(--text-light); font-weight: 500; margin-top: 10px;}
+
+        /* モーダル（ポップアップ） */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(3px); }
+        .modal-content { background: white; padding: 40px; border-radius: 12px; width: 90%; max-width: 500px; position: relative; text-align: left; box-shadow: 0 20px 50px rgba(0,0,0,0.15); animation: modalFadeIn 0.3s ease;}
+        @keyframes modalFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .close-modal { position: absolute; right: 20px; top: 15px; font-size: 28px; cursor: pointer; color: #888; transition: 0.2s;}
+        .close-modal:hover { color: #222; }
+        
+        /* ========================================================
+           フッター
+           ======================================================== */
+        .site-footer { background-color: #f8f9fa; color: var(--text-main); padding: 80px 5% 30px; border-top: 4px solid var(--brand-blue); margin-top: 100px; }
+        .footer-container { max-width: 1200px; margin: 0 auto; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 50px; margin-bottom: 60px; }
+        .footer-col h4 { font-size: 16px; font-weight: 700; margin-bottom: 25px; padding-bottom: 10px; color: var(--text-main); border-bottom: 1px solid #dddddd; position: relative; display: block; }
+        .footer-col h4::after { content: ''; position: absolute; left: 0; bottom: -1px; width: 40px; height: 2px; background-color: var(--brand-blue); }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 12px; }
+        .footer-col ul li a { color: var(--text-light); text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); display: inline-flex; align-items: center; position: relative; }
+        .footer-col ul li a::before { content: '›'; font-size: 18px; color: var(--brand-blue); position: absolute; left: -15px; opacity: 0; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
+        .footer-col ul li a:hover { color: var(--brand-blue); transform: translateX(12px); }
+        .footer-col ul li a:hover::before { opacity: 1; left: -12px; }
+        .footer-bottom { text-align: center; border-top: 1px solid #e0e0e0; padding-top: 30px; font-size: 12px; color: var(--text-light); letter-spacing: 0.05em;}
+
+        @media (max-width: 768px) { 
+            .header-links { display: none; } 
+            .news-row { flex-direction: column; gap: 10px; padding: 20px 10px; } 
+            .section { margin-bottom: 100px; }
+            .container { padding: 80px 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="splash-screen">
+        <div class="splash-content">
+            <div class="splash-text-box-ja">
+                <div class="splash-main-ja">おおいた地域交通見える化ボード</div>
+            </div>
+            <div class="splash-route-line"></div>
+            <div class="splash-sub-en">OITA Regional Transportation Dashboard</div>
+        </div>
+    </div>
+    
+    <header>
+        <a href="index.html" class="logo">OITA Regional Transportation Dashboard<span>おおいた地域交通見える化ボード</span></a>
+        <div class="header-links">
+            <a href="index.html">ホーム</a>
+            <a href="map.html">路線マップ</a>
+            <a href="news.html">お知らせ</a>
+            <a href="survey.html">アンケート</a>
+            <a href="about.html">このサイトについて</a>
+            <a href="profile.html" class="btn-outline">開発者情報</a>
+        </div>
+    </header>
+
+    <div class="slider-wrap">
+        <div class="slide active">
+            <div class="bg-image" style="background-image: url('image/001.png');"></div>
+            <div class="slide-content"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="section fade-in-up">
+            <h2 class="section-title">最新のお知らせ</h2>
+            <div class="news-wrapper">
+                <div id="topNewsList"></div>
+                <div style="text-align: center; margin-top: 40px;">
+                    <a href="news.html" style="font-size: 14px; font-weight: 700; color: var(--text-main); text-decoration: none; border-bottom: 1px solid var(--text-main); padding-bottom: 2px;">過去のお知らせ一覧を見る</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="section fade-in-up" style="text-align: center;">
+    <h2 class="section-title">地図から選択する</h2>
+    
+    <div class="map-wrapper">
+        <div id="map"></div>
+    </div>
+    
+    
+</div>
+
+        <div id="route-modal" class="modal-overlay">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h3 id="modal-route-name" style="color: var(--brand-blue); margin-bottom: 15px; font-size: 24px; border-bottom: 2px solid var(--brand-blue); display: inline-block; padding-bottom: 5px;">路線名</h3>
+                <div class="modal-body">
+                    <p id="modal-route-desc" style="margin-bottom: 20px; font-size: 15px; line-height: 1.6; color: #444;">調査の概要がここに表示されます。</p>
+                    <div class="route-stats" style="background: #f8fbff; border: 1px solid #cce4ff; padding: 15px; border-radius: 8px; margin-bottom: 25px; font-size: 14px;">
+                        <div class="stat-item"><span style="font-weight: bold; color: var(--brand-blue);">調査時期:</span> <span id="stat-period" style="color: #222;">-</span></div>
+                        <div class="stat-item" style="margin-top: 8px;"><span style="font-weight: bold; color: var(--brand-blue);">回答数:</span> <span id="stat-samples" style="color: #222;">-</span></div>
+                    </div>
+                    <a href="#" id="modal-link" class="btn-primary" style="display: block; text-align: center; width: 100%;">ダッシュボードを表示</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="section fade-in-up">
+            <div class="survey-box" id="survey">
+                <h2>あなたの声が、地域の交通を救う。</h2>
+                <p style="margin-bottom: 40px; font-size: 16px; font-weight: 500; color: var(--text-main);">現在、久大本線および大分市内バス路線についての利用実態アンケートを実施しています。</p>
+                <a href="survey.html" class="btn-primary">アンケート調査一覧へ</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>メニュー</h4>
+                    <ul>
+                        <li><a href="index.html">ホーム</a></li>
+                        <li><a href="map.html">路線マップ・公開データ</a></li>
+                        <li><a href="news.html">お知らせ一覧</a></li>
+                        <li><a href="survey.html">アンケート調査</a></li>
+                        <li><a href="about.html">このサイトについて</a></li>
+                        <li><a href="profile.html">開発者情報</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>関連リンク</h4>
+                    <ul>
+                        <li><a href="https://sites.google.com/nbu.ac.jp/imanishimm/" target="_blank">今西研究室 公式サイト</a></li>
+                        <li><a href="https://sites.google.com/view/oita-hover-log" target="_blank">ホーバー運行記録帳</a></li>
+                        <li><a href="https://www.jrkyushu.co.jp/" target="_blank">JR九州 公式サイト</a></li>
+                        <li><a href="https://www.oitabus.co.jp/" target="_blank">大分バス 公式サイト</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>規約・サポート</h4>
+                    <ul>
+                        <li><a href="terms.html">利用規約・免責事項</a></li>
+                        <li><a href="terms.html#privacy">プライバシーポリシー</a></li>
+                        <li><a href="terms.html#research">研究目的の利用について</a></li>
+                        <li><a href="faq.html">よくある質問（FAQ）</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Tuda Kaito</a> . All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ========================================================
+        // オープニングアニメーション＆スクロール表示＆スライダー
+        // ========================================================
+        document.addEventListener("DOMContentLoaded", function() {
+            const splashScreen = document.getElementById("splash-screen");
+            setTimeout(() => {
+                splashScreen.classList.add("slide-up");
+                setTimeout(() => { splashScreen.style.display = "none"; }, 800);
+            }, 2200); 
+
+            const observer = new IntersectionObserver((entries) => { 
+                entries.forEach(entry => { 
+                    if (entry.isIntersecting) { 
+                        entry.target.classList.add('is-visible'); 
+                        observer.unobserve(entry.target);
+                    } 
+                }); 
+            }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+            document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
+        });
+
+        let currentSlide = 0; 
+        const slides = document.querySelectorAll('.slide');
+        if(slides.length > 1) {
+            setInterval(() => { 
+                slides[currentSlide].classList.remove('active'); 
+                currentSlide = (currentSlide + 1) % slides.length; 
+                slides[currentSlide].classList.add('active'); 
+            }, 10000); 
+        }
+
+
+
+
+// ========================================================
+        // 地図の初期化
+        // ========================================================
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: {
+                "version": 8,
+                "sources": {
+                    "gsi-v": {
+                        "type": "vector",
+                        "tiles": ["https://cyberjapandata.gsi.go.jp/xyz/experimental_bvmap/{z}/{x}/{y}.pbf"],
+                        "attribution": "国土地理院"
+                    }
+                },
+                "layers": [
+                    { "id": "background", "type": "background", "paint": { "background-color": "#ffffff" } },
+                    { "id": "water", "type": "fill", "source": "gsi-v", "source-layer": "waterarea", "paint": { "fill-color": "#cde2f3" } },
+                    { "id": "boundary", "type": "line", "source": "gsi-v", "source-layer": "boundary", "paint": { "line-color": "#aaaaaa", "line-width": 1 } }
+                ]
+            },
+            center: [131.00, 33.30], // 日田周辺が見えやすい位置に調整
+            zoom: 11,
+            maxBounds: [[130.5, 32.5], [132.5, 34.0]],
+            attributionControl: false
+        });
+        
+        map.scrollZoom.disable();
+        map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+        // 出典表示
+        map.addControl(new maplibregl.AttributionControl({
+            customAttribution: '<a href="https://nlftp.mlit.go.jp/" target="_blank">出典：国土数値情報</a> | <a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank">国土地理院</a> | &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>'
+        }), 'bottom-right');
+
+        const routeDataInfo = {
+            'rail-kyudai': { name: '久大本線', desc: '大分〜日田間を結ぶ路線の利用実態調査。', period: '2025年9月', samples: '320smp', link: 'map.html#kyudai' },
+
+
+            'rail-hohi': { name: 'JR豊肥本線利用実態調査', desc: '本調査は、日本文理大学経営経済学部地域マネジメントコースの講義「フィールドスタディⅡ（地域）」において、学生が主体となって実施した「豊肥本線利用実態調査」です。人口減少が本格化する中でのローカル線の持続可能な運行を見据え、沿線住民の鉄道利用に関する意識と行動の把握を目的としています。主な調査項目は、回答者の個人属性（年齢・居住地等）、平日および土休日における鉄道利用回数・利用目的、ならびにサービス各項目に対する満足度です。なお、本調査は大学講義の一環として独自に実施した自主調査であり、九州旅客鉄道株式会社（JR九州）および沿線自治体等の公的機関とは一切関係がございません。', period: '2026年6月~7月', samples: '435件', link: 'https://datastudio.google.com/reporting/c6c380ab-8f76-4ee1-9c88-4f0a9ec72371/page/Yr1iF' },
+
+
+            'rail-nippo-n': { name: '日豊本線（大分以北）', desc: '大分駅から別府・中津方面の調査データ。', period: '準備中', samples: '-', link: 'map.html#nippo-n' },
+
+
+            'rail-nippo-s': { name: '日豊本線（大分以南）', desc: '大分駅から臼杵・佐伯・宗太郎方面の調査データ。', period: '準備中', samples: '-', link: 'map.html#nippo-s' },
+
+
+            'rail-brt': { name: '日田彦山線BRT', desc: '日田駅から夜明を経由し、筑前岩屋方面のBRT調査データ。', period: '準備中', samples: '-', link: 'map.html#brt' }
+
+
+        };
+
+        map.on('load', async () => {
+            try {
+                const resRail = await fetch('N02-24_RailroadSection.geojson');
+                const geojsonRail = await resRail.json();
+                const resStation = await fetch('N02-24_Station.geojson');
+                const geojsonStation = await resStation.json();
+
+                const isOitaLine = (coords) => coords.some(c => c[0] >= 130.80 && c[0] <= 132.00 && c[1] >= 32.75 && c[1] <= 33.65);
+                const isOitaStation = (coord) => {
+                    const lng = coord[0], lat = coord[1];
+                    if (lng < 130.85 || lng > 132.0 || lat < 32.80 || lat > 33.60) return false;
+                    if (lat < 33.0 && lng < 131.3) return false; 
+                    return true;
+                };
+
+                const featuresKyudai = [], featuresHohi = [], featuresNippoN = [], featuresNippoS = [];
+
+                geojsonRail.features.forEach(f => {
+                    const lineName = f.properties.N02_003;
+                    if (!lineName) return;
+                    const coords = f.geometry.type === 'LineString' ? f.geometry.coordinates : f.geometry.coordinates[0];
+                    if (!coords || !isOitaLine(coords)) return;
+
+                    if (lineName.includes('久大')) {
+                        featuresKyudai.push(f);
+                    } else if (lineName.includes('豊肥')) {
+                        const maxLng = Math.max(...coords.map(c => c[0]));
+                        if (maxLng < 131.25) return; 
+                        featuresHohi.push(f);
+                    } else if (lineName.includes('日豊')) {
+                        const midLng = (coords[0][0] + coords[coords.length-1][0]) / 2;
+                        if (midLng < 131.60) featuresNippoN.push(f);
+                        else featuresNippoS.push(f);
+                    }
+                });
+
+                // ★【修正】日田彦山線BRTのルート
+                // 北友田〜夜明間に川・道沿いの経由点を追加して「脱・直線」化
+                const featureBRT = [{
+                    type: 'Feature',
+                    properties: { N02_003: '日田彦山線BRT' },
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: [
+                            [130.935, 33.316], // 日田（鉄道データ基準）
+                            [130.939, 33.321], // 日田市役所前
+                            [130.935, 33.327], // 昭和学園前
+                            [130.929, 33.329], // 林工西口
+                            [130.9161, 33.3294], // 光岡（鉄道データ基準）
+                            [130.908, 33.325], // 南友田
+                            [130.904, 33.324], // 北友田
+                            // 曲線補完地点（国道210号・筑後川沿い）
+                            [130.893, 33.323], 
+                            [130.880, 33.321],
+                            [130.871, 33.319],
+                            [130.8624, 33.3211], // 夜明（鉄道データ基準）
+                            [130.865, 33.325], // 祝原
+                            [130.867, 33.329], // 上村
+                            [130.867, 33.334], // 小鶴
+                            [130.867, 33.338], // 釘原
+                            [130.866, 33.341], // 伏尾
+                            [130.866, 33.344], // 今山
+                            [130.867, 33.350], // 方司口
+                            [130.867, 33.355], // 大明小中学校前
+                            [130.868, 33.360], // 名本
+                            [130.869, 33.364], // 大鶴
+                            [130.868, 33.370], // 竹本
+                            [130.867, 33.377], // 吉竹
+                            [130.867, 33.385], // 宝珠山
+                            [130.863, 33.399], // 大行司
+                            [130.869, 33.411]  // 筑前岩屋
+                        ]
+                    }
+                }];
+
+                const addRoute = (id, features, dataInfo) => {
+                    map.addSource(id, { type: 'geojson', data: { type: 'FeatureCollection', features: features }});
+                    map.addLayer({ id: id + '-v', type: 'line', source: id, paint: { 'line-color': '#0055aa', 'line-width': 3 }});
+                    map.addLayer({ id: id + '-c', type: 'line', source: id, paint: { 'line-color': 'transparent', 'line-width': 15 }});
+
+                    map.on('click', id + '-c', () => {
+                        document.getElementById('modal-route-name').innerText = dataInfo.name;
+                        document.getElementById('modal-route-desc').innerText = dataInfo.desc;
+                        document.getElementById('stat-period').innerText = dataInfo.period;
+                        document.getElementById('stat-samples').innerText = dataInfo.samples;
+                        document.getElementById('modal-link').href = dataInfo.link;
+                        document.getElementById('route-modal').style.display = 'flex';
+                    });
+                    map.on('mouseenter', id + '-c', () => {
+                        map.getCanvas().style.cursor = 'pointer';
+                        map.setPaintProperty(id + '-v', 'line-color', '#ff4400');
+                        map.setPaintProperty(id + '-v', 'line-width', 5);
+                    });
+                    map.on('mouseleave', id + '-c', () => {
+                        map.getCanvas().style.cursor = '';
+                        map.setPaintProperty(id + '-v', 'line-color', '#0055aa');
+                        map.setPaintProperty(id + '-v', 'line-width', 3);
+                    });
+                };
+
+                addRoute('rail-kyudai', featuresKyudai, routeDataInfo['rail-kyudai']);
+                addRoute('rail-hohi', featuresHohi, routeDataInfo['rail-hohi']);
+                addRoute('rail-nippo-n', featuresNippoN, routeDataInfo['rail-nippo-n']);
+                addRoute('rail-nippo-s', featuresNippoS, routeDataInfo['rail-nippo-s']);
+                addRoute('rail-brt', featureBRT, routeDataInfo['rail-brt']);
+
+                // 鉄道駅の抽出（光岡・夜明・日田などはここから描画される）
+                const oitaStations = geojsonStation.features.map(f => {
+                    let coord = f.geometry.type === 'LineString' ? f.geometry.coordinates[0] : f.geometry.coordinates;
+                    const lineName = f.properties.N02_003;
+                    if (!lineName || !['久大', '豊肥', '日豊'].some(l => lineName.includes(l))) return null;
+                    if (!isOitaStation(coord)) return null; 
+                    return { type: 'Feature', properties: f.properties, geometry: { type: 'Point', coordinates: coord } };
+                }).filter(f => f !== null);
+
+                // BRT専用バス停（鉄道駅と重複しないものだけリストアップ）
+                const brtStations = [
+                    { type: 'Feature', properties: { N02_005: '日田市役所前' }, geometry: { type: 'Point', coordinates: [130.939, 33.321] } },
+                    { type: 'Feature', properties: { N02_005: '昭和学園前' }, geometry: { type: 'Point', coordinates: [130.935, 33.327] } },
+                    { type: 'Feature', properties: { N02_005: '林工西口' }, geometry: { type: 'Point', coordinates: [130.929, 33.329] } },
+                    { type: 'Feature', properties: { N02_005: '南友田' }, geometry: { type: 'Point', coordinates: [130.908, 33.325] } },
+                    { type: 'Feature', properties: { N02_005: '北友田' }, geometry: { type: 'Point', coordinates: [130.904, 33.324] } },
+                    { type: 'Feature', properties: { N02_005: '祝原' }, geometry: { type: 'Point', coordinates: [130.865, 33.325] } },
+                    { type: 'Feature', properties: { N02_005: '上村' }, geometry: { type: 'Point', coordinates: [130.867, 33.329] } },
+                    { type: 'Feature', properties: { N02_005: '小鶴' }, geometry: { type: 'Point', coordinates: [130.867, 33.334] } },
+                    { type: 'Feature', properties: { N02_005: '釘原' }, geometry: { type: 'Point', coordinates: [130.867, 33.338] } },
+                    { type: 'Feature', properties: { N02_005: '伏尾' }, geometry: { type: 'Point', coordinates: [130.866, 33.341] } },
+                    { type: 'Feature', properties: { N02_005: '今山' }, geometry: { type: 'Point', coordinates: [130.866, 33.344] } },
+                    { type: 'Feature', properties: { N02_005: '方司口' }, geometry: { type: 'Point', coordinates: [130.867, 33.350] } },
+                    { type: 'Feature', properties: { N02_005: '大明小中学校前' }, geometry: { type: 'Point', coordinates: [130.867, 33.355] } },
+                    { type: 'Feature', properties: { N02_005: '名本' }, geometry: { type: 'Point', coordinates: [130.868, 33.360] } },
+                    { type: 'Feature', properties: { N02_005: '大鶴' }, geometry: { type: 'Point', coordinates: [130.869, 33.364] } },
+                    { type: 'Feature', properties: { N02_005: '竹本' }, geometry: { type: 'Point', coordinates: [130.868, 33.370] } },
+                    { type: 'Feature', properties: { N02_005: '吉竹' }, geometry: { type: 'Point', coordinates: [130.867, 33.377] } }
+                ];
+
+                const allStations = oitaStations.concat(brtStations);
+
+                map.addSource('stations', { type: 'geojson', data: { type: 'FeatureCollection', features: allStations }});
+                map.addLayer({
+                    id: 'stations-point',
+                    type: 'circle',
+                    source: 'stations',
+                    paint: { 'circle-radius': 1.2, 'circle-color': '#ffffff', 'circle-stroke-color': '#333333', 'circle-stroke-width': 0.8 }
+                });
+            } catch (error) { console.error('読み込みエラー:', error); }
+        });
+
+
+
+
+
+        
+
+
+
+        // 自治体クリック（拡大するだけ）
+        document.querySelectorAll('.municipality').forEach(el => {
+            el.addEventListener('click', function() {
+                document.querySelectorAll('.municipality').forEach(m => m.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 路線クリック（ポップアップ表示）
+        document.querySelectorAll('.rail-line').forEach(el => {
+            el.addEventListener('click', function() {
+                const route = trainRoutes[this.id];
+                if(route) {
+                    document.getElementById('modal-route-name').innerText = route.name;
+                    document.getElementById('modal-route-desc').innerText = route.desc;
+                    document.getElementById('stat-period').innerText = route.period;
+                    document.getElementById('stat-samples').innerText = route.samples;
+                    document.getElementById('modal-link').href = route.link;
+                    document.getElementById('route-modal').style.display = 'flex';
+                }
+            });
+        });
+
+        // ポップアップを閉じる
+        document.querySelector('.close-modal').onclick = () => {
+            document.getElementById('route-modal').style.display = 'none';
+        };
+        window.onclick = (event) => {
+            if (event.target == document.getElementById('route-modal')) {
+                document.getElementById('route-modal').style.display = 'none';
+            }
+        };
+    </script>
+
+    <script src="news-data.js"></script>
+    <script>
+        // ========================================================
+        // 最新のお知らせ読み込み
+        // ========================================================
+        document.addEventListener("DOMContentLoaded", function() {
+            const topNewsContainer = document.getElementById('topNewsList');
+            if(!topNewsContainer) return;
+            
+            const catColorMap = { "お知らせ": "#cc0000", "データ更新": "#004488", "発表": "#555555" };
+            // newsDataが正しく読み込まれているか確認
+            if(typeof newsData !== 'undefined') {
+                const recentNews = newsData.slice(0, 3);
+                
+                recentNews.forEach(item => {
+                    const color = catColorMap[item.category] || "#555555";
+                    const targetUrl = item.url !== "#" ? item.url : 'news.html';
+                    const targetBlank = item.isPdf ? `target="_blank"` : '';
+                    const pdfIcon = item.isPdf ? `<span class="pdf-icon-small">PDF</span>` : '';
+                    
+                    const html = `
+                        <a href="${targetUrl}" ${targetBlank} class="news-row">
+                            <span class="news-date">${item.date}</span>
+                            <span class="news-label" style="background: ${color};">${item.category}</span>
+                            <span class="news-title">${item.text} ${pdfIcon}</span>
+                        </a>
+                    `;
+                    topNewsContainer.insertAdjacentHTML('beforeend', html);
+                });
+            }
+        });
+    </script>
+    
+</body>
+</html>

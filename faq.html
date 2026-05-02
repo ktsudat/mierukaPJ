@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>よくある質問 (FAQ) | OITA Transit Dashboard</title>
+
+     <link rel="icon" href="image/rogo.png" type="image/png">
+    <link rel="apple-touch-icon" href="image/rogo.png">
+
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* ========================================================
+           ベース設定・ヘッダー完全統一
+           ======================================================== */
+        :root { --text-main: #222222; --text-light: #555555; --bg-color: #fcfcfc; --brand-blue: #004488; --surface: #ffffff; --border-color: #cccccc; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Noto Sans JP', "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; color: var(--text-main); background-color: var(--bg-color); line-height: 1.8; letter-spacing: 0.03em;}
+
+        header { background-color: #ffffff; height: 70px; padding: 0 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--brand-blue); position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
+        .logo { text-decoration: none; color: var(--brand-blue); font-size: 20px; font-weight: 700; line-height: 1.2; }
+        .logo span { display: block; font-size: 11px; color: var(--text-light); margin-top: 2px; font-weight: 500;}
+        .header-links { display: flex; gap: 30px; align-items: center; }
+        .header-links a { text-decoration: none; color: var(--text-main); font-size: 14px; font-weight: 700; transition: 0.3s; padding-bottom: 5px; border-bottom: 2px solid transparent;}
+        .header-links a:hover, .header-links a.active { color: var(--brand-blue); border-color: var(--brand-blue); }
+        .btn-outline { padding: 8px 20px; border: 2px solid var(--text-main); color: var(--text-main); font-size: 13px; font-weight: 700; text-decoration: none; background: #fff; transition: 0.3s; border-radius: 4px; line-height: 1;}
+        .btn-outline:hover { background-color: var(--text-main); color: #fff; border-color: var(--text-main);}
+
+        /* ========================================================
+           ページ固有コンテンツ（FAQ）
+           ======================================================== */
+        .container { max-width: 900px; width: 95%; margin: 120px auto 100px; background: #fff; padding: 50px; border: 1px solid var(--border-color); box-shadow: 0 5px 15px rgba(0,0,0,0.02);}
+        .page-title { font-size: 26px; font-weight: 700; margin-bottom: 40px; border-bottom: 2px solid var(--brand-blue); padding-bottom: 15px; color: var(--brand-blue);}
+
+        /* アコーディオン（開閉式）のデザイン：RESAS風ホバー色反転 */
+        .faq-item { margin-bottom: 20px; border: 2px solid var(--border-color); border-radius: 8px; overflow: hidden; background: #fff; transition: 0.3s; }
+        .faq-item:hover { border-color: var(--brand-blue); box-shadow: 0 5px 15px rgba(0,68,136,0.1); }
+        
+        .faq-q { padding: 20px 25px; font-size: 16px; font-weight: 700; color: var(--text-main); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; transition: 0.3s; }
+        .faq-q:hover { background: var(--brand-blue); color: #fff; }
+        .faq-q-text { display: flex; gap: 10px; align-items: center; }
+        .faq-q-text::before { content: 'Q.'; color: #fff; background: var(--brand-blue); padding: 2px 8px; font-size: 14px; border-radius: 4px; transition: 0.3s;}
+        .faq-q:hover .faq-q-text::before { background: #fff; color: var(--brand-blue); }
+        
+        .faq-icon { font-size: 20px; transition: transform 0.3s ease; }
+        .faq-item.active .faq-icon { transform: rotate(180deg); }
+
+        .faq-a-wrap { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease; background: #fff; }
+        .faq-item.active .faq-a-wrap { max-height: 500px; }
+        
+        .faq-a { padding: 0 25px 20px; font-size: 14px; color: var(--text-main); display: flex; gap: 10px; line-height: 1.8; border-top: 1px solid transparent; margin-top: 20px; font-weight: 500;}
+        .faq-item.active .faq-a { border-top-color: #f1f1f1; }
+        .faq-a::before { content: 'A.'; color: var(--text-light); font-weight: 700; font-size: 16px; }
+
+        /* ========================================================
+           フッター完全統一
+           ======================================================== */
+        .site-footer { background-color: #eeeeee; color: var(--text-main); padding: 60px 5% 20px; border-top: 1px solid var(--border-color); margin-top: 80px; }
+        .footer-container { max-width: 1200px; margin: 0 auto; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px; }
+        .footer-col h4 { font-size: 16px; font-weight: 700; margin-bottom: 20px; border-bottom: 2px solid var(--brand-blue); padding-bottom: 10px; color: var(--brand-blue); display: inline-block;}
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 10px; }
+        .footer-col ul li a { color: var(--text-main); text-decoration: none; font-size: 14px; font-weight: 500; transition: 0.2s;}
+        .footer-col ul li a:hover { color: var(--brand-blue); padding-left: 5px; } 
+        .footer-bottom { text-align: center; border-top: 1px solid var(--border-color); padding-top: 20px; font-size: 12px; color: var(--text-light); }
+        @media (max-width: 768px) { .header-links { display: none; } .container { padding: 30px 20px; } }
+    </style>
+
+    <meta name="description" content="大分県内の鉄道路線やバス路線の利用実態をデータで可視化するプロジェクトサイトです。">
+    <meta property="og:title" content="OITA Transit Dashboard | おおいた地域交通見える化ボード">
+    <meta property="og:description" content="大分県内の地域交通の利用実態をデータで可視化。皆様の声で未来のダイヤを考えます。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="【ここに公開したサイトのURLを入れる】">
+    <meta property="og:image" content="【ここにSNSで表示させたい画像のURLを入れる】">
+    <meta name="twitter:card" content="summary_large_image">
+    
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">OITA Regional Transportation Dashboard<span>おおいた地域交通見える化ボード</span></a>
+        <div class="header-links">
+            <a href="index.html">ホーム</a>
+            <a href="map.html">路線マップ</a>
+            <a href="news.html">お知らせ</a>
+            <a href="survey.html">アンケート</a>
+            <a href="about.html">このサイトについて</a>
+            <a href="profile.html">開発者情報</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">よくある質問（FAQ）</h1>
+
+        <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">
+                <div class="faq-q-text">このサイトのデータは、JR九州などの公式情報ですか？</div>
+                <div class="faq-icon">▼</div>
+            </div>
+            <div class="faq-a-wrap">
+                <div class="faq-a">
+                    <div>いいえ、公式情報ではありません。本サイトのデータは、日本文理大学の講義の一環として、運営・管理者が主体となって独自に実施した学術目的の自主調査です。運行事業者や自治体とは一切関係ございませんので、本サイトに関する各機関へのお問い合わせは固くお断りいたします。</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">
+                <div class="faq-q-text">公開されているグラフの数値が、実際の集計と少し違う気がします。</div>
+                <div class="faq-icon">▼</div>
+            </div>
+            <div class="faq-a-wrap">
+                <div class="faq-a">
+                    <div>本ボードは収集したアンケート回答（生データ）に基づき集計しておりますが、可視化システムの仕様やデータ処理（外れ値の除外など）の過程において、実際の単純集計結果と微細な差異が生じる場合がございます。あくまで傾向を把握するための参考値としてご利用ください。</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">
+                <div class="faq-q-text">サイト内のグラフやデータを、学校のレポートや授業で使ってもいいですか？</div>
+                <div class="faq-icon">▼</div>
+            </div>
+            <div class="faq-a-wrap">
+                <div class="faq-a">
+                    <div>はい、自由にご活用いただけます。使用にあたり事前の許可申請や連絡は不要です。ただし、誹謗中傷や個人の特定を目的とした利用は禁止しております。詳しくは利用規約をご確認ください。</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q">
+                <div class="faq-q-text">流動マップ（地図）において、利用者が「別府駅」や「鶴崎駅」から乗っているように見えます。</div>
+                <div class="faq-icon">▼</div>
+            </div>
+            <div class="faq-a-wrap">
+                <div class="faq-a">
+                    <div>流動マップの仕様上、広域の区間データについては便宜的に「代表駅（仮座標）」の位置にプロットしています。例えば「日豊本線（大分以北）」は別府駅に表示されますが、これは特定の駅利用のみを示すものではなく、当該エリア全体の利用を含んでいる点にご留意ください。</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>メニュー</h4>
+                    <ul>
+                        <li><a href="index.html">ホーム</a></li>
+                        <li><a href="map.html">路線マップ・公開データ</a></li>
+                        <li><a href="news.html">お知らせ一覧</a></li>
+                        <li><a href="survey.html">アンケート調査</a></li>
+                        <li><a href="about.html">このサイトについて</a></li>
+                        <li><a href="profile.html">開発者情報</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>関連リンク</h4>
+                    <ul>
+                        <li><a href="https://sites.google.com/nbu.ac.jp/imanishimm/" target="_blank">今西研究室 公式サイト</a></li>
+                        <li><a href="https://sites.google.com/view/oita-hover-log" target="_blank">ホーバー運行記録帳</a></li>
+                        <li><a href="https://www.jrkyushu.co.jp/" target="_blank">JR九州 公式サイト</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>規約・サポート</h4>
+                    <ul>
+                        <li><a href="terms.html">利用規約・免責事項</a></li>
+                        <li><a href="terms.html#privacy">プライバシーポリシー</a></li>
+                        <li><a href="terms.html#research">研究目的の利用について</a></li>
+                        <li><a href="faq.html">よくある質問（FAQ）</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 <a href="admin-login.html" style="color: inherit; text-decoration: none; cursor: default;">Tuda kaito. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // アコーディオンの開閉プログラム
+        function toggleFaq(element) {
+            document.querySelectorAll('.faq-item').forEach(item => {
+                if(item !== element) item.classList.remove('active');
+            });
+            element.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

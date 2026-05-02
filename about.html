@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>このサイトについて | OITA Transit Dashboard</title>
+
+    <link rel="icon" href="image/rogo.png" type="image/png">
+    <link rel="apple-touch-icon" href="image/rogo.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { 
+            --text-main: #222222; 
+            --text-light: #555555; 
+            --bg-color: #fcfcfc; 
+            --brand-blue: #004488; 
+            --brand-light: #e6edf5; 
+            --border-color: #cccccc; 
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Noto Sans JP', "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; color: var(--text-main); background-color: var(--bg-color); line-height: 1.8; letter-spacing: 0.03em; }
+
+        header { background-color: #ffffff; height: 70px; padding: 0 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--brand-blue); position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .logo { text-decoration: none; color: var(--brand-blue); font-size: 20px; font-weight: 700; line-height: 1.2; }
+        .logo span { display: block; font-size: 11px; color: var(--text-light); margin-top: 2px; font-weight: 500; }
+        .header-links { display: flex; gap: 30px; align-items: center; }
+        .header-links a { text-decoration: none; color: var(--text-main); font-size: 14px; font-weight: 700; transition: 0.3s; padding-bottom: 5px; border-bottom: 2px solid transparent; }
+        .header-links a:hover, .header-links a.active { color: var(--brand-blue); border-color: var(--brand-blue); }
+
+        .container { max-width: 1100px; width: 100%; margin: 120px auto 100px; padding: 0 20px; }
+        .page-header { text-align: left; margin-bottom: 50px; border-bottom: 3px solid var(--brand-blue); padding-bottom: 15px; }
+        .page-header h1 { font-size: 32px; font-weight: 900; color: var(--brand-blue); letter-spacing: 0.05em; }
+
+        section { margin-bottom: 40px; background: #ffffff; padding: 50px; border: 1px solid var(--border-color); }
+        h2 { font-size: 22px; font-weight: 900; margin-bottom: 15px; color: var(--brand-blue); display: flex; align-items: baseline; gap: 15px; border-bottom: 1px solid var(--brand-light); padding-bottom: 10px; }
+        h2 span { font-size: 42px; color: var(--brand-blue); font-weight: 900; font-family: 'Noto Sans JP', "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; font-style: normal; line-height: 1; }
+        .section-tagline { font-size: 15px; color: var(--brand-blue); font-weight: 700; margin-bottom: 25px; display: block; }
+        p { margin-bottom: 25px; font-size: 15px; color: var(--text-main); font-weight: 500; text-align: justify; line-height: 1.9; }
+
+        .infographic-box { background: #fdfdfd; border: 1px solid var(--border-color); padding: 30px; margin: 30px 0; }
+        .infographic-title { text-align: center; font-weight: 700; color: var(--brand-blue); margin-bottom: 20px; font-size: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .spiral-grid { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .spiral-item { background: #ffffff; border: 1px solid var(--border-color); padding: 10px 20px; width: 100%; text-align: center; font-weight: 700; font-size: 14px; }
+        .spiral-arrow { color: var(--brand-blue); font-size: 16px; line-height: 1; }
+        .spiral-source { text-align: right; font-size: 11px; color: #777; margin-top: 15px; }
+
+        .feature-list { margin: 30px 0; list-style: none; }
+        .feature-list li { margin-bottom: 25px; font-size: 14.5px; }
+        .feature-list strong { color: var(--brand-blue); font-size: 17px; display: block; margin-bottom: 8px; border-bottom: 1px solid var(--brand-light); padding-bottom: 4px; }
+
+        .caution-box { border: 2px solid #b00020; padding: 30px 40px; margin-top: 20px; background-color: #fff8f8; }
+        .caution-box p { font-size: 14.5px; margin-bottom: 15px; }
+        .caution-box p:last-child { margin-bottom: 0; }
+
+        .message-box { border: 2px solid var(--brand-blue); padding: 40px; margin-top: 20px; background-color: #fafbfc; }
+        .message-box p { font-size: 15px; margin-bottom: 20px; }
+        .signature { text-align: right; font-weight: 700; color: var(--brand-blue); margin-top: 20px; font-size: 15px; border-top: 1px solid var(--brand-blue); display: inline-block; float: right; padding-top: 5px; }
+
+        .site-footer { background-color: #eeeeee; color: var(--text-main); padding: 60px 5% 20px; border-top: 1px solid var(--border-color); margin-top: 80px; }
+        .footer-container { max-width: 1200px; margin: 0 auto; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px; }
+        .footer-col h4 { font-size: 16px; font-weight: 700; margin-bottom: 20px; border-bottom: 2px solid var(--brand-blue); padding-bottom: 10px; color: var(--brand-blue); display: inline-block; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 10px; }
+        .footer-col ul li a { color: var(--text-main); text-decoration: none; font-size: 14px; font-weight: 500; transition: 0.2s; }
+        .footer-col ul li a:hover { color: var(--brand-blue); padding-left: 5px; }
+        .footer-bottom { text-align: center; border-top: 1px solid var(--border-color); padding-top: 20px; font-size: 12px; color: var(--text-light); }
+
+        @media (max-width: 768px) { 
+            .header-links { display: none; } 
+            section { padding: 30px 20px; } 
+            h2 span { font-size: 32px; }
+            .message-box { padding: 25px; }
+            .caution-box { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">OITA Regional Transportation Dashboard<span>おおいた地域交通見える化ボード</span></a>
+        <div class="header-links">
+            <a href="index.html">ホーム</a>
+            <a href="map.html">路線マップ</a>
+            <a href="news.html">お知らせ</a>
+            <a href="survey.html">アンケート</a>
+            <a href="about.html" class="active">このサイトについて</a>
+            <a href="profile.html">開発者情報</a>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="page-header">
+            <h1>このサイトについて</h1>
+        </div>
+
+        <section>
+            <h2><span>01</span> 概要</h2>
+            <p>「おおいた地域交通見える化ボード」は、大分県内の公共交通機関の利用実態を可視化するBIダッシュボードをまとめたWebポータルサイトとして、令和8年（2026年）5月1日に公開いたしました。</p>
+            <p>本サイトは、管理者が独自に実施した公共交通に関する自主調査のデータを、BIツールを用いて可視化し、「ダッシュボード」として1つに集約したものです。調査にご協力いただいた皆様へ結果を分かりやすく共有・還元するとともに、地域交通の現状を客観的なデータとして広く共有することを目的としています。</p>
+        </section>
+
+        <section>
+            <h2><span>02</span> 背景・目的</h2>
+            <span class="section-tagline">― 地方公共交通が抱える「負のスパイラル」とその解決に向けて</span>
+            <p>現在、地方における公共交通は、本格的な人口減少社会を迎える中で深刻な課題に直面しています。具体的には、「需要の減少」が事業継続のための「運行本数の削減（コスト削減）」を招き、それが「利便性の低下」に繋がり、結果として「一層の利用者離れ」を引き起こすという「負のスパイラル」に陥っています。この行き着く先が路線の休止や廃線であり、近隣の福岡県における平成筑豊鉄道の全線廃止方針など、すでに現実の問題として顕在化しています。</p>
+
+            <div class="infographic-box">
+                <div class="infographic-title">負のスパイラルの仕組み</div>
+                <div class="spiral-grid">
+                    <div class="spiral-item">利用者数の減少（運賃収入の悪化）</div>
+                    <div class="spiral-arrow">▼</div>
+                    <div class="spiral-item">採算を合わせるための「運行本数・路線の削減」</div>
+                    <div class="spiral-arrow">▼</div>
+                    <div class="spiral-item">便利さが下がり、さらに乗らなくなる</div>
+                    <div class="spiral-arrow">▼</div>
+                    <div class="spiral-item" style="background: #f0f0f0;">路線の維持が難しくなり、廃止が検討される</div>
+                </div>
+                <div class="spiral-source">※土井勉氏の知見等を参考に作成</div>
+            </div>
+
+            <p>公共交通に関する研究（土井勉氏の知見等）によれば、この負のスパイラルから脱却するためには、単なるコスト削減にとどまらず、事業者・行政・住民が協力・協働し、一体となった仕組みづくりを行うことが不可欠であると指摘されています。</p>
+            <p>持論ではありますが、三者が一体となるための最大の課題は「住民の意識向上」だと考えています。健全な協議の場を設けるためには、まず前提として「地元の路線が現在どのような状況にあるのか」を住民自身が客観的に把握すること（現状把握）が求められます。こうした現状把握を促すための第一歩として、大分県が公開している「おおいた観光データカタログ」等を参考に、複雑な利用実態を直感的に分かりやすく可視化した「豊肥本線見える化ボード」を構築いたしました。</p>
+            <p>そして今後、このデータの可視化を他の路線へも拡大していくにあたり、点在する調査データやダッシュボードを1つに集約し、誰もが容易にアクセスできる「情報の玄関口」が必要であると考え、本ポータルサイトを開設するに至りました。本サイトが、住民の皆様が公共交通について考えるための判断材料となることを目指しています。</p>
+        </section>
+
+        <section>
+            <h2><span>03</span> 私の思い</h2>
+            <div class="message-box">
+                <p>私自身、幼い頃から乗り物が好きで、路線短縮や休止や廃線といった形で「好きなものが地域から失われていく現状」に強い寂しさを感じていました。「自分にも何かできないか」と考え、大学1年次から地域交通に関する様々な施策を考え、論文としてまとめ九州運輸振興センター主催の懸賞論文に応募してきました。しかし振り返ってみると、それらは提案に留まっており、実際の解決や行動には至っていない「口先だけ」の状態だったというのが正直なところです。</p>
+                <p>住民の皆様の意識を変え、実際の利用を促すためには、まずは「地元の路線がどれだけ厳しい状況にあるか」を分かりやすく知ってもらい、「それなら1回乗ってみよう」という気持ちに繋がる具体的なきっかけが必要です。そこで、「データを可視化し、現状を知ってもらう仕組みを作ることなら、今の自分にもできるかもしれない」。そう思い立ったのが、本プロジェクトの出発点です。</p>
+                <p>この「おおいた地域交通見える化ボード」が、大分県の公共交通の未来を地域の皆で考えるための、小さなきっかけとなることを心から願っています。</p>
+                <div class="signature">おおいた地域交通見える化ボード 運営・管理<br>日本文理大学経営経済学部 津田 櫂臣</div>
+                <div style="clear:both;"></div>
+            </div>
+        </section>
+
+        <section>
+            <h2><span>04</span> 本件に関する留意事項（免責事項）</h2>
+            <p style="font-weight:700; color: var(--brand-blue); margin-bottom: 10px;">■ プロジェクトの位置づけ</p>
+            <p>本サイトおよび掲載されているダッシュボードは、開発者個人（一学生）が研究活動の一環として独自に構築・運営している非営利のプロジェクトです。大分県、各市町村等の行政機関、および九州旅客鉄道株式会社（JR九州）、県内各バス事業者等の運行事業者が公式に運営または関与するものではありません。</p>
+            <p style="font-weight:700; color: var(--brand-blue); margin-bottom: 10px;">■ お問い合わせに関するお願い</p>
+            <div class="caution-box">
+                <p>本件に関するご意見・ご質問を、行政機関の窓口や各公共交通事業者へ直接お問い合わせいただくことは、業務の多大な妨げとなりますので、固くお控えください。</p>
+                <p>本プロジェクトに関するご連絡は、<strong><a href="https://forms.gle/gLgvJF1ipYR7q5Ua7" target="_blank" rel="noopener noreferrer" style="color: #b00020; text-decoration: underline;">お問い合わせフォーム</a></strong>までお願いいたします。</p>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>メニュー</h4>
+                    <ul>
+                        <li><a href="index.html">ホーム</a></li>
+                        <li><a href="map.html">路線マップ・公開データ</a></li>
+                        <li><a href="news.html">お知らせ一覧</a></li>
+                        <li><a href="survey.html">アンケート調査</a></li>
+                        <li><a href="about.html">このサイトについて</a></li>
+                        <li><a href="profile.html">開発者情報</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>関連リンク</h4>
+                    <ul>
+                        <li><a href="https://sites.google.com/nbu.ac.jp/imanishimm/" target="_blank">今西研究室 公式サイト</a></li>
+                        <li><a href="https://sites.google.com/view/oita-hover-log" target="_blank">ホーバー運行記録帳</a></li>
+                        <li><a href="https://www.jrkyushu.co.jp/" target="_blank">JR九州 公式サイト</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>規約・サポート</h4>
+                    <ul>
+                        <li><a href="terms.html">利用規約・免責事項</a></li>
+                        <li><a href="terms.html#privacy">プライバシーポリシー</a></li>
+                        <li><a href="terms.html#research">研究目的の利用について</a></li>
+                        <li><a href="faq.html">よくある質問（FAQ）</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 <a href="admin-login.html" style="color: inherit; text-decoration: none; cursor: default;">Tuda kaito. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

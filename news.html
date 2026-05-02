@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お知らせ | OITA Transit Dashboard</title>
+    
+    <link rel="icon" href="image/rogo.png" type="image/png">
+    <link rel="apple-touch-icon" href="image/rogo.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* ========================================================
+           ベース設定
+           ======================================================== */
+        :root { --text-main: #222222; --text-light: #555555; --bg-color: #fcfcfc; --brand-blue: #004488; --surface: #ffffff; --border-color: #cccccc; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Noto Sans JP', "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; color: var(--text-main); background-color: var(--bg-color); line-height: 1.8; letter-spacing: 0.03em; }
+
+        /* ========================================================
+           ヘッダー
+           ======================================================== */
+        header { background-color: #ffffff; height: 70px; padding: 0 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--brand-blue); position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05);}
+        .logo { text-decoration: none; color: var(--brand-blue); font-size: 20px; font-weight: 700; line-height: 1.2; }
+        .logo span { display: block; font-size: 11px; color: var(--text-light); margin-top: 2px; font-weight: 500;}
+        .header-links { display: flex; gap: 30px; align-items: center; }
+        .header-links a { text-decoration: none; color: var(--text-main); font-size: 14px; font-weight: 700; transition: 0.3s; padding-bottom: 5px; border-bottom: 2px solid transparent;}
+        .header-links a:hover, .header-links a.active { color: var(--brand-blue); border-color: var(--brand-blue); }
+
+        /* ========================================================
+           ページ固有コンテンツ（お知らせ）
+           ======================================================== */
+        .container { max-width: 1200px; width: 95%; margin: 120px auto 100px; }
+        .page-title { font-size: 28px; font-weight: 700; margin-bottom: 40px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; color: var(--brand-blue);}
+
+        /* 検索・タブ用デザイン */
+        .controls-container { margin-bottom: 40px; background: #fff; padding: 25px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .search-input { width: 100%; max-width: 500px; padding: 12px 15px; font-size: 15px; border: 2px solid var(--border-color); border-radius: 6px; outline: none; transition: 0.3s; margin-bottom: 20px; display: block;}
+        .search-input:focus { border-color: var(--brand-blue); box-shadow: 0 0 10px rgba(0,68,136,0.1); }
+        .tab-container { display: flex; gap: 10px; flex-wrap: wrap; }
+        .tab-btn { padding: 8px 18px; font-size: 14px; font-weight: 700; border: none; background: #eeeeee; color: var(--text-light); border-radius: 30px; cursor: pointer; transition: 0.3s; }
+        .tab-btn:hover { background: #dddddd; }
+        .tab-btn.active { background: var(--brand-blue); color: #ffffff; }
+
+        /* お知らせリストデザイン */
+        .news-list { display: flex; flex-direction: column; gap: 20px; min-height: 300px; }
+        .news-item { background: #fff; padding: 25px; border-radius: 8px; border: 1px solid var(--border-color); text-decoration: none; color: var(--text-main); transition: 0.3s; display: block; }
+        .news-item:hover { border-color: var(--brand-blue); box-shadow: 0 5px 15px rgba(0,68,136,0.1); transform: translateY(-3px); }
+        .news-date { display: block; color: #888; font-size: 14px; margin-bottom: 10px; }
+        .tag { display: inline-block; padding: 4px 12px; font-size: 12px; border-radius: 20px; font-weight: 700; margin-bottom: 15px; }
+        .tag-news { background: #ffebee; color: #cc0000; }
+        .tag-data { background: #e3f2fd; color: #004488; }
+        .tag-research { background: #f5f5f5; color: #555555; }
+        .news-text { font-size: 18px; font-weight: 700; line-height: 1.5; display: flex; align-items: center; gap: 10px;}
+        .pdf-icon { background: #cc0000; color: #fff; font-size: 11px; padding: 2px 6px; border-radius: 3px; display: inline-block; flex-shrink: 0; vertical-align: middle;}
+        .no-results { text-align: center; color: #888; padding: 40px; font-size: 16px; font-weight: 700; }
+        
+        @media (max-width: 600px) { .news-text { font-size: 16px; } }
+
+        /* ========================================================
+           フッター
+           ======================================================== */
+        .site-footer { background-color: #eeeeee; color: var(--text-main); padding: 60px 5% 20px; border-top: 1px solid var(--border-color); margin-top: 80px; }
+        .footer-container { max-width: 1200px; margin: 0 auto; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px; }
+        .footer-col h4 { font-size: 16px; font-weight: 700; margin-bottom: 20px; border-bottom: 2px solid var(--brand-blue); padding-bottom: 10px; color: var(--brand-blue); display: inline-block;}
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 10px; }
+        .footer-col ul li a { color: var(--text-main); text-decoration: none; font-size: 14px; font-weight: 500; transition: 0.2s;}
+        .footer-col ul li a:hover { color: var(--brand-blue); padding-left: 5px; } 
+        .footer-bottom { text-align: center; border-top: 1px solid var(--border-color); padding-top: 20px; font-size: 12px; color: var(--text-light); }
+
+        @media (max-width: 768px) { .header-links { display: none; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">OITA Regional Transportation Dashboard<span>おおいた地域交通見える化ボード</span></a>
+        <div class="header-links">
+            <a href="index.html">ホーム</a>
+            <a href="map.html">路線マップ</a>
+            <a href="news.html">お知らせ</a>
+            <a href="survey.html">アンケート</a>
+            <a href="about.html">このサイトについて</a>
+            <a href="profile.html" class="btn-outline">開発者情報</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">お知らせ</h1>
+        
+        <div class="controls-container">
+            <input type="text" id="newsSearch" class="search-input" placeholder="キーワードでお知らせを検索...">
+            <div class="tab-container" id="monthTabs">
+                </div>
+        </div>
+
+        <div class="news-list" id="newsList"></div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>メニュー</h4>
+                    <ul>
+                        <li><a href="index.html">ホーム</a></li>
+                        <li><a href="map.html">路線マップ・公開データ</a></li>
+                        <li><a href="news.html">お知らせ一覧</a></li>
+                        <li><a href="survey.html">アンケート調査</a></li>
+                        <li><a href="about.html">このサイトについて</a></li>
+                        <li><a href="profile.html">開発者情報</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>関連リンク</h4>
+                    <ul>
+                        <li><a href="https://sites.google.com/nbu.ac.jp/imanishimm/" target="_blank">今西研究室 公式サイト</a></li>
+                        <li><a href="https://sites.google.com/view/oita-hover-log" target="_blank">ホーバー運行記録帳</a></li>
+                        <li><a href="https://www.jrkyushu.co.jp/" target="_blank">JR九州 公式サイト</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>規約・サポート</h4>
+                    <ul>
+                        <li><a href="terms.html">利用規約・免責事項</a></li>
+                        <li><a href="terms.html#privacy">プライバシーポリシー</a></li>
+                        <li><a href="terms.html#research">研究目的の利用について</a></li>
+                        <li><a href="faq.html">よくある質問（FAQ）</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 <a href="admin-login.html" style="color: inherit; text-decoration: none; cursor: default;">Tuda kaito. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="news-data.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const newsContainer = document.getElementById('newsList');
+            const tabContainer = document.getElementById('monthTabs');
+            const searchInput = document.getElementById('newsSearch');
+            if(!newsContainer) return;
+            
+            const catClassMap = { "お知らせ": "tag-news", "データ更新": "tag-data", "発表": "tag-research" };
+
+            // 1. データから「年・月」を抽出し、重複を消して新しい順に並べる（例："2026.04"）
+            const months = [...new Set(newsData.map(item => item.date.substring(0, 7)))].sort().reverse();
+
+            // 2. タブを自動生成する
+            let currentMonth = 'all';
+
+            const allBtn = document.createElement('button');
+            allBtn.className = 'tab-btn active';
+            allBtn.textContent = 'すべて';
+            allBtn.onclick = () => { setActiveTab(allBtn); currentMonth = 'all'; renderList(); };
+            tabContainer.appendChild(allBtn);
+
+            months.forEach(m => {
+                const btn = document.createElement('button');
+                btn.className = 'tab-btn';
+                // "2026.04" を "2026年04月" の表示に変換
+                btn.textContent = m.replace('.', '年') + '月';
+                btn.onclick = () => { setActiveTab(btn); currentMonth = m; renderList(); };
+                tabContainer.appendChild(btn);
+            });
+
+            function setActiveTab(clickedBtn) {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                clickedBtn.classList.add('active');
+            }
+
+            // 3. 検索窓の入力イベント
+            searchInput.addEventListener('input', renderList);
+
+            // 4. リストを描画する関数（検索とタブの絞り込みを両方適用）
+            function renderList() {
+                const query = searchInput.value.toLowerCase();
+                newsContainer.innerHTML = '';
+                let count = 0;
+                
+                newsData.forEach(item => {
+                    const itemMonth = item.date.substring(0, 7); // "2026.04"
+                    
+                    // 検索条件に一致するか（タイトルやカテゴリー名で検索）
+                    const textMatch = item.text.toLowerCase().includes(query) || item.category.toLowerCase().includes(query);
+                    // タブ条件に一致するか
+                    const monthMatch = (currentMonth === 'all' || itemMonth === currentMonth);
+
+                    if (textMatch && monthMatch) {
+                        count++;
+                        const tagClass = catClassMap[item.category] || "tag-research";
+                        const pdfIcon = item.isPdf ? `<span class="pdf-icon">PDF</span>` : '';
+                        const targetUrl = item.url !== "#" ? item.url : 'javascript:void(0)';
+                        const target = item.isPdf ? `target="_blank"` : '';
+                        
+                        const html = `
+                            <a href="${targetUrl}" ${target} class="news-item">
+                                <span class="news-date">${item.date}</span>
+                                <span class="tag ${tagClass}">${item.category}</span>
+                                <span class="news-text">${item.text}${pdfIcon}</span>
+                            </a>
+                        `;
+                        newsContainer.insertAdjacentHTML('beforeend', html);
+                    }
+                });
+
+                // 結果が0件だった場合のメッセージ
+                if (count === 0) {
+                    newsContainer.innerHTML = `<div class="no-results">該当するお知らせが見つかりませんでした。</div>`;
+                }
+            }
+
+            // 初期表示
+            renderList();
+        });
+    </script>
+</body> 
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OITA Transit Dashboard | おおいた地域交通見える化ボード</title>
+    
+    <style>
+        /* =========================================
+           全体のリセットと基本設定
+           ========================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* paddingやborderを含めて幅を計算させる設定。レイアウト崩れを防ぎます */
+        }
+        body {
+            /* フォントの指定: OS標準の綺麗なフォントを優先して読み込ませます */
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Sans', sans-serif;
+            color: #333;
+            line-height: 1.8; /* 行間を少し広めにとり、文章を読みやすくします */
+            background-color: #f8f9fa; /* サイト全体の背景色（ごく薄いグレー） */
+        }
+
+        /* =========================================
+           ヘッダー部分のデザイン
+           ========================================= */
+        .header {
+            display: flex; /* 要素を横並びにするための設定 */
+            justify-content: space-between; /* 両端に要素を配置します (ロゴは左、ボタンは右) */
+            align-items: center; /* 縦方向の中央揃え */
+            padding: 20px 5%; /* 上下20px、左右は画面幅の5%の余白 */
+            background: rgba(255, 255, 255, 0.95); /* 背景を白にして少しだけ透過させます */
+            position: sticky; /* スクロールしても画面上部に追従(固定)させる設定 */
+            top: 0;
+            z-index: 100; /* 他の要素より手前に表示させるための数値（数値が大きいほど手前） */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); /* 下部に薄い影をつけます */
+        }
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: #1a252f;
+            display: flex;
+            flex-direction: column; /* 文字を縦に並べる設定 (メインタイトルとサブタイトル用) */
+            line-height: 1.2;
+        }
+        .logo-sub {
+            font-size: 12px;
+            color: #7f8c8d;
+            font-weight: normal;
+        }
+
+        /* =========================================
+           メインビジュアル(ヒーローセクション)
+           ========================================= */
+        .hero {
+            text-align: center;
+            padding: 80px 20px;
+            /* 背景を斜めのグラデーションにします。 
+               [要変更: 将来的にブランドカラーが決まれば、ここのカラーコード(#2c3e50など)を変更します] */
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: #fff;
+        }
+        .hero h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+            letter-spacing: 2px; /* 文字の間隔を少し広げてスタイリッシュに見せます */
+        }
+        .hero p {
+            font-size: 18px;
+            opacity: 0.9; /* 文字を少しだけ透過させて馴染ませます */
+        }
+
+        /* =========================================
+           コンテンツ共通のレイアウト設定
+           ========================================= */
+        .container {
+            max-width: 1100px; /* コンテンツが横に広がりすぎないように最大幅を設定 */
+            margin: 0 auto; /* 左右の余白を自動計算し、画面の中央に配置します */
+            padding: 60px 5%;
+        }
+        .section-wrapper {
+            text-align: center;
+            margin-bottom: 60px; /* 各セクションの下に余白を作ります */
+        }
+        .section-title {
+            font-size: 28px;
+            margin-bottom: 40px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db; /* タイトルの下に線を引きます */
+            display: inline-block; /* 線を文字の幅に合わせるための設定 */
+            padding-bottom: 5px;
+        }
+
+        /* =========================================
+           スクロール連動アニメーションの定義
+           ========================================= */
+        .fade-in-up {
+            opacity: 0; /* 最初は透明にして見えないようにしておく */
+            transform: translateY(30px); /* 最初は本来の位置から下に30pxずらしておく */
+            transition: all 0.8s ease-out; /* 0.8秒かけて滑らかに変化させる指示 */
+        }
+        /* JavaScriptからこのクラスが付与されると、本来の状態(不透明・元の位置)に戻る */
+        .fade-in-up.visible {
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+
+        /* =========================================
+           各セクション固有のデザイン
+           ========================================= */
+        /* 地図エリア */
+        .map-box {
+            background: #e0e6ed;
+            height: 400px; /* 高さを固定。将来Leaflet.js等を入れる際に必要に応じて調整します */
+            border-radius: 12px; /* 角を丸くします */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+        }
+
+        /* お知らせ(ニュース)リスト */
+        .news-list {
+            text-align: left;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            list-style: none; /* リスト先頭の黒丸を消します */
+        }
+        .news-item {
+            border-bottom: 1px solid #eee; /* 各項目を薄い線で区切ります */
+            padding: 15px 0;
+            display: flex;
+            gap: 20px; /* 日付とテキストの間に余白を作ります */
+        }
+        .news-item:last-child {
+            border-bottom: none; /* 最後の項目だけ下の線を消します */
+        }
+        .news-date {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        /* CTA(行動喚起)ボタン */
+        .cta-btn {
+            display: inline-block;
+            background: #e74c3c; /* 目立つ赤色を設定 */
+            color: #fff;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px; /* ボタンの角を丸くする */
+            text-decoration: none; /* リンクの下線を消す */
+            transition: transform 0.2s; /* ホバー時の動きを滑らかにする */
+            box-shadow: 0 4px 15px rgba(231,76,60,0.3);
+        }
+        .cta-btn:hover {
+            transform: translateY(-3px); /* マウスを乗せたときに少し上に浮くような動き */
+            background: #c0392b; /* マウスを乗せたときに少し暗い色にする */
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">
+            OITA Transit Dashboard
+            <span class="logo-sub">おおいた地域交通見える化ボード</span>
+        </div>
+        <a href="#survey" class="cta-btn" style="padding: 10px 20px; font-size: 14px;">アンケート協力</a>
+    </header>
+
+    <section class="hero">
+        <h1 class="fade-in-up">データで描く、大分の足。</h1>
+        <p class="fade-in-up" style="transition-delay: 0.2s;">JR・路線バス・海上交通の利用実態を可視化し、持続可能な地域交通を考えます。</p>
+    </section>
+
+    <div class="container">
+        
+        <div class="section-wrapper fade-in-up">
+            <h2 class="section-title">Interactive Map</h2>
+            <p style="margin-bottom: 20px; color: #666;">路線を選択すると、詳細な分析ダッシュボードへ移動します。</p>
+            
+            <div class="map-box">
+                <p>ここに大分県の路線図マップを実装します</p>
+            </div>
+        </div>
+
+        <div class="section-wrapper fade-in-up">
+            <h2 class="section-title">News & Updates</h2>
+            <ul class="news-list">
+                <li class="news-item">
+                    <span class="news-date">2026.04.12</span>
+                    <span>サイトを本公開しました。豊肥本線の調査データを閲覧可能です。</span>
+                </li>
+                <li class="news-item">
+                    <span class="news-date">2026.03.20</span>
+                    <span>久大本線の利用実態アンケートを開始しました。</span>
+                </li>
+            </ul>
+        </div>
+
+        <div id="survey" class="section-wrapper fade-in-up" style="background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+            <h2 class="section-title" style="border-bottom-color: #e74c3c;">We Need Your Voice</h2>
+            <p style="margin-bottom: 30px;">現在、以下の路線についての利用実態アンケートを実施しています。</p>
+            
+            <a href="【ここにアンケートのURLを入力】" class="cta-btn" target="_blank" rel="noopener noreferrer">
+                久大本線 アンケートに回答する (約3分)
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        // DOMContentLoadedは「ページ全体のHTMLが読み込み終わったら」という意味です
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            // 'fade-in-up'というクラスを持つすべてのHTML要素を探してリスト(配列)にします
+            const elements = document.querySelectorAll('.fade-in-up');
+            
+            // IntersectionObserverというブラウザの機能を使って、要素が画面に入ったかを監視します
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    // isIntersectingがtrueなら、その要素が画面内に入ったことを意味します
+                    if (entry.isIntersecting) {
+                        // 要素に'visible'というクラスを追加します。これでCSS側のアニメーションが発動します
+                        entry.target.classList.add('visible');
+                        // 一度表示されたら、その要素の監視をやめます(上にスクロールして戻った際に何度もアニメーションさせないため)
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 }); // threshold: 0.1 は「要素の10%が画面に入ったら発火する」という条件です
+
+            // 見つけたすべての要素(elements)を一つずつ取り出し、監視対象に登録します
+            elements.forEach(el => observer.observe(el));
+        });
+    </script>
+</body>
+</html>
