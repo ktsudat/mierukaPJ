@@ -16,9 +16,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>おおいた地域交通見える化ボード</title>
+    <meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>このサイトについて | おおいた地域交通見える化ボード</title>
+<meta name="description" content="おおいた地域交通見える化ボードは、大分県内の公共交通機関の利用状況を独自調査のもと見える化（可視化）する、BIダッシュボードをまとめたポータルサイトです。調査にご協力いただいた皆様へ結果を分かりやすく共有・還元するとともに、地域交通の現状を客観的なデータとして広く共有することを目的としています。">
     
     <link rel="icon" href="image/rogo.png" type="image/png">
-    <link rel="apple-touch-icon" href="image/rogo.png">
+    <link rel="apple-touch-icon" href="image/rogo1.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -397,13 +402,15 @@
         }
     </style>
 
-        <meta name="description" content="大分県内の鉄道路線やバス路線の利用実態をデータで可視化する、日本文理大学経営経済学部 津田櫂臣のプロジェクトサイトです。">
-    <meta property="og:title" content="OITA Transit Dashboard | おおいた地域交通見える化ボード">
-    <meta property="og:description" content="大分県内の地域交通の利用実態をデータで可視化。皆様の声で未来のダイヤを考えます。">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://ktsudat.github.io/mierukaPJ/">
-    <meta property="og:image" content="001.png">
-    <meta name="twitter:card" content="summary_large_image">
+        <meta name="description" content="おおいた地域交通見える化ボードは、大分県内の公共交通機関の利用状況を独自調査の元見える化（可視化）する、BIダッシュボードをまとめたポータルサイトです。調査にご協力いただいた皆様へ結果を分かりやすく共有・還元するとともに、地域交通の現状を客観的なデータとして広く共有することを目的としています。">
+
+<meta property="og:title" content="おおいた地域交通見える化ボード">
+<meta property="og:description" content="大分県内の公共交通機関の利用状況を独自調査のもと見える化（可視化）。調査結果を分かりやすく共有・還元し、地域交通の現状を客観的なデータとして広く共有します。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ktsudat.github.io/mierukaPJ/">
+<meta property="og:image" content="https://ktsudat.github.io/mierukaPJ/image/001.png">
+
+<meta name="twitter:card" content="summary_large_image">
     
 </head>
 <body>
@@ -495,7 +502,7 @@
         <div class="section fade-in-up">
             <div class="survey-box" id="survey">
                 <h2>皆さんの声を聞かせてください。</h2>
-                <p style="margin-bottom: 40px; font-size: 16px; font-weight: 500; color: var(--text-main);">およびJR日田彦山線BRTについての利用実態アンケートを計画・実施しています。</p>
+                <p style="margin-bottom: 40px; font-size: 16px; font-weight: 500; color: var(--text-main);">日豊本線大分以南およびJR日田彦山線BRTについての利用実態アンケートを計画・実施しています。<br>現在は利用していない方のご意見もせびお待ちしております。</p>
                 <a href="survey.html" class="btn-primary">アンケート調査一覧へ</a>
             </div>
         </div>
@@ -630,19 +637,19 @@
         }), 'bottom-right');
 
         const routeDataInfo = {
-            'rail-kyudai': { name: '久大本線', desc: '大分〜日田間を結ぶ路線の利用実態調査。', period: '2025年9月', samples: '320smp', link: 'map.html#kyudai' },
+            'rail-kyudai': { name: '久大本線', desc: '大分駅ー夜明駅。', period: '準備中', samples: '320smp', link: 'map.html#kyudai' },
 
 
-            'rail-hohi': { name: 'JR豊肥本線利用実態調査', desc: '本調査は、日本文理大学経営経済学部地域マネジメントコースの講義「フィールドスタディⅡ（地域）」において、学生が主体となって実施した「豊肥本線利用実態調査」です。人口減少が本格化する中でのローカル線の持続可能な運行を見据え、沿線住民の鉄道利用に関する意識と行動の把握を目的としています。主な調査項目は、回答者の個人属性（年齢・居住地等）、平日および土休日における鉄道利用回数・利用目的、ならびにサービス各項目に対する満足度です。なお、本調査は大学講義の一環として独自に実施した自主調査であり、九州旅客鉄道株式会社（JR九州）および沿線自治体等の公的機関とは一切関係がございません。', period: '2026年6月~7月', samples: '435件', link: 'https://datastudio.google.com/reporting/c6c380ab-8f76-4ee1-9c88-4f0a9ec72371/page/Yr1iF' },
+            'rail-hohi': { name: 'JR豊肥本線利用実態調査', desc: '大分駅～豊後荻駅'<br>'本調査は、日本文理大学経営経済学部地域マネジメントコースの講義「フィールドスタディⅡ（地域）」において、学生が主体となって実施した「豊肥本線利用実態調査」です。人口減少が本格化する中でのローカル線の持続可能な運行を見据え、沿線住民の鉄道利用に関する意識と行動の把握を目的としています。主な調査項目は、回答者の個人属性（年齢・居住地等）、平日および土休日における鉄道利用回数・利用目的、ならびにサービス各項目に対する満足度です。なお、本調査は大学講義の一環として独自に実施した自主調査であり、九州旅客鉄道株式会社（JR九州）および沿線自治体等の公的機関とは一切関係がございません。', period: '2026年6月~7月', samples: '435件', link: 'https://datastudio.google.com/reporting/c6c380ab-8f76-4ee1-9c88-4f0a9ec72371/page/Yr1iF' },
 
 
-            'rail-nippo-n': { name: '日豊本線（大分以北）', desc: '大分駅から別府・中津方面の調査データ。', period: '準備中', samples: '-', link: 'map.html#nippo-n' },
+            'rail-nippo-n': { name: '日豊本線（大分以北）', desc: '大分駅～中津駅。', period: '準備中', samples: '-', link: 'map.html#nippo-n' },
 
 
-            'rail-nippo-s': { name: '日豊本線（大分以南）', desc: '大分駅から臼杵・佐伯・宗太郎方面の調査データ。', period: '準備中', samples: '-', link: 'map.html#nippo-s' },
+            'rail-nippo-s': { name: '日豊本線（大分以南）', desc: '大分駅～延岡駅。', period: '準備中', samples: '-', link: 'map.html#nippo-s' },
 
 
-            'rail-brt': { name: '日田彦山線BRT', desc: '日田駅から夜明を経由し、筑前岩屋方面のBRT調査データ。', period: '準備中', samples: '-', link: 'map.html#brt' }
+            'rail-brt': { name: '日田彦山線BRT', desc: '日田駅～添田駅。', period: '準備中', samples: '-', link: 'map.html#brt' }
 
 
         };

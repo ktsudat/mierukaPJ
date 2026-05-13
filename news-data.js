@@ -5,6 +5,13 @@
 
 const newsData = [
     {
+        date: "2026.05.14",
+        category: "お知らせ",
+        text: "「豊肥本線見える化ボード」に関する周知ポスター公開",
+        url: "./PDF/posuta-koukai_20260514.pdf",
+        isPdf: true
+    },
+    {
         date: "2026.05.01",
         category: "データ更新",
         text: "豊肥本線のデータを追加しました「豊肥本線見える化ボード」公開開始",
