@@ -409,9 +409,28 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://ktsudat.github.io/mierukaPJ/">
 <meta property="og:image" content="https://ktsudat.github.io/mierukaPJ/image/001.png">
-
 <meta name="twitter:card" content="summary_large_image">
-    
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<style>
+  .mySwiper {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto 30px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .swiper-slide img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.3s;
+  }
+  .swiper-slide img:hover {
+    transform: scale(1.02);
+  }
+</style>
 </head>
 <body>
 
@@ -506,7 +525,40 @@
                 <a href="survey.html" class="btn-primary">アンケート調査一覧へ</a>
             </div>
         </div>
+    </div>       
+
+    <h2 class="section-title">その他の運営サイト</h2>
+    <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+        <div class="swiper-slide">
+        <a href="https://ktsudat.github.io/daiyaguramupj/">
+        <img src="image/suziyaTOP.png" alt="ダイヤグラム作成ツール｜スジ屋">
+      </a>
     </div>
+    <div class="swiper-slide">
+      <a href="https://sites.google.com/view/oita-hover-log" target="_blank">
+        <img src="image/hoverTOP.png" alt="ホーバー運行記録帳">
+      </a>
+    </div>
+    </div>
+    <div class="swiper-pagination"></div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        const swiper = new Swiper('.mySwiper', {
+         loop: true,
+         autoplay: {
+          delay: 10000,
+            disableOnInteraction: false,
+            },
+            pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+            },
+        });
+    </script>
+
 
     <footer class="site-footer">
         <div class="footer-container">
@@ -869,6 +921,5 @@
             }
         });
     </script>
-    
 </body>
 </html>
