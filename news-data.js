@@ -4,6 +4,13 @@
 ========================================================= */
 
 const newsData = [
+    {
+        date: "2026.09.30",
+        category: "お知らせ",
+        text: "調査締切を延長しました【大分空港アクセス交通利用実態調査】",
+        url: "./PDF/OitaAirport_anke_extension20260930.pdf",
+        isPdf: true
+    },
      {
         date: "2026.08.27",
         category: "お知らせ",
